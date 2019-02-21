@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsc && NODE_ENV=development node ./dist/app.js",
+    "dev": "./node_modules/nodemon/bin/nodemon.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,5 +23,8 @@
     "@types/koa-router": "^7.0.39",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }
