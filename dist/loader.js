@@ -50,7 +50,7 @@ class Loader {
                     services.forEach((d) => {
                         const name = d.split('.')[0];
                         const mod = require(__dirname + '/service/' + name).default;
-                        loaded['service'][name] = new mod(this);
+                        loaded['service'][name] = new mod(this, this.app);
                     });
                     return loaded.service;
                 }
@@ -58,9 +58,22 @@ class Loader {
             }
         });
     }
+    loadConfig() {
+        const configDef = __dirname + '/config/config.default.js';
+        const configEnv = __dirname + (process.env.NODE_ENV === 'production' ? '/config/config.prod.js' : '/config/config.dev.js');
+        const conf = require(configEnv);
+        const confDef = require(configDef);
+        const merge = Object.assign({}, conf, confDef);
+        Object.defineProperty(this.app, 'config', {
+            get() {
+                return merge;
+            }
+        });
+    }
     loadRouter() {
         this.loadController();
         this.loadService();
+        this.loadConfig();
         const mod = require(__dirname + '/router.js');
         const routers = mod(this.controller);
         Object.keys(routers).forEach(key => {
@@ -68,7 +81,7 @@ class Loader {
             this.router[method](path, async (ctx) => {
                 const _class = routers[key].type;
                 const handler = routers[key].methodName;
-                const instance = new _class(ctx);
+                const instance = new _class(ctx, this.app);
                 instance[handler]();
             });
         });
