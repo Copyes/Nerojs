@@ -1,20 +1,51 @@
 import fs from 'fs';
 import Router from 'koa-router';
+import { BaseContext } from 'koa';
 
-const route = new Router;
 
-export function loader() {
+export class Loader {
+  router: Router = new Router
+  controller: any = {}
 
-    const dirs = fs.readdirSync(__dirname + '/router');
-    console.log(dirs)
+  loadController(){
+    const dirs = fs.readdirSync(__dirname + '/controller');
     dirs.forEach((filename) => {
-        const mod = require(__dirname + '/router/' + filename).default;
-        console.log(mod)
-        Object.keys(mod).map((key) => {
-            const [method, path] = key.split(' ');
-            const handler = mod[key];
-            (<any>route)[method](path, handler);
+      const property = filename.split('.')[0];
+      const mod = require(__dirname + '/controller/' + filename).default;
+      if (mod) {
+        const methodNames = Object.getOwnPropertyNames(mod.prototype).filter((names) => {
+            if (names !== 'constructor') {
+                return names;
+            }
         })
+        Object.defineProperty(this.controller, property, {
+            get() {
+                const merge: { [key: string]: any } = {};
+                methodNames.forEach((name) => {
+                    merge[name] = {
+                        type: mod,
+                        methodName: name
+                    }
+                })
+                return merge;
+            }
+        })
+      }
     })
-    return route.routes();
+  }
+  loadRouter() {
+    this.loadController();
+    const mod = require(__dirname + '/router.js')
+    const routers = mod(this.controller)
+    Object.keys(routers).forEach(key => {
+      const [method, path] = key.split(' ');
+      (<any>this.router)[method](path, async (ctx: BaseContext) => {
+        const _class = routers[key].type;
+        const handler = routers[key].methodName;
+        const instance = new _class(ctx);
+        instance[handler]();
+      })
+    })
+    return this.router.routes();
+  }
 }

@@ -1,13 +1,9 @@
 import Koa from 'koa'
-// import Router from 'koa-router'
-// import { user } from './router/user'
-import { loader } from './loader'
+import { Loader } from './loader'
 const app = new Koa
-// const route = new Router
 
-// route.get('/', user)
-
-app.use(loader())
+const loader = new Loader
+app.use(loader.loadRouter())
 app.listen(3000, '127.0.0.1', () => {
   console.log('done')
 })
