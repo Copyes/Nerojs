@@ -10,8 +10,10 @@ interface Bps {
 
 export class Blueprint {
   router: Bps = {} // 用于保存路由关系
+
   setRouter(url: string, blueprint: Bp) {
     const _bp = this.router[url]
+
     if(_bp){
       for(let index in _bp){
         const object = _bp[index]
@@ -21,7 +23,7 @@ export class Blueprint {
         }
       }
       this.router[url].push(blueprint)
-    }else{
+    } else {
       this.router[url] = []
       this.router[url].push(blueprint)
     }

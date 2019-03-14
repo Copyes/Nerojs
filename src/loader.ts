@@ -2,6 +2,7 @@ import fs from 'fs';
 import Koa from 'koa';
 import Router from 'koa-router';
 import { BaseContext } from 'koa';
+import { bp } from './blueprint';
 
 
 export class Loader {
@@ -15,27 +16,7 @@ export class Loader {
   loadController(){
     const dirs = fs.readdirSync(__dirname + '/controller');
     dirs.forEach((filename) => {
-      const property = filename.split('.')[0];
-      const mod = require(__dirname + '/controller/' + filename).default;
-      if (mod) {
-        const methodNames = Object.getOwnPropertyNames(mod.prototype).filter((names) => {
-            if (names !== 'constructor') {
-                return names;
-            }
-        })
-        Object.defineProperty(this.controller, property, {
-            get() {
-                const merge: { [key: string]: any } = {};
-                methodNames.forEach((name) => {
-                    merge[name] = {
-                        type: mod,
-                        methodName: name
-                    }
-                })
-                return merge;
-            }
-        })
-      }
+      require(__dirname + '/controller/' + filename).default
     })
   }
   loadService() {
@@ -72,19 +53,27 @@ export class Loader {
     })
   }
   loadRouter() {
-    this.loadController();
-    this.loadService();
-    this.loadConfig();
-    const mod = require(__dirname + '/router.js')
-    const routers = mod(this.controller)
-    Object.keys(routers).forEach(key => {
-      const [method, path] = key.split(' ');
-      (<any>this.router)[method](path, async (ctx: BaseContext) => {
-        const _class = routers[key].type;
-        const handler = routers[key].methodName;
-        const instance = new _class(ctx, this.app);
-        instance[handler]();
+    this.loadController()
+    this.loadService()
+    this.loadConfig()
+
+    const routes = bp.getRoute()
+    // const mod = require(__dirname + '/router.js')
+    // const routers = mod(this.controller)
+    Object.keys(routes).forEach(url => {
+      routes[url].forEach(item => {
+        (<any>this.router)[item.httpMethod](url, async (ctx: BaseContext) => {
+          const instance = new item.constructor(ctx, this.app)
+          await instance[item.handler]()
+        })
       })
+      // const [method, path] = key.split(' ');
+      // (<any>this.router)[method](path, async (ctx: BaseContext) => {
+      //   const _class = routers[key].type;
+      //   const handler = routers[key].methodName;
+      //   const instance = new _class(ctx, this.app);
+      //   instance[handler]();
+      // })
     })
     return this.router.routes();
   }

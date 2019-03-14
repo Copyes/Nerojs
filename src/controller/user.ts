@@ -1,5 +1,5 @@
 import { Controller } from './base'
-
+import { bp } from '../blueprint';
 export default class User extends Controller {
   async user() {
 
@@ -10,6 +10,7 @@ export default class User extends Controller {
     return (<any>this.app)['config']
   }
 
+  @bp.get('/test')
   async userInfo() {
     this.ctx.body = this.getConfig().middleware[0]
   }
