@@ -52,10 +52,23 @@ export class Loader {
       }
     })
   }
+
+  // 动态加载插件
+  loadPlugin() {
+    const pluginModule = require(__dirname + '/config/plugin.js')
+    Object.keys(pluginModule).forEach(key => {
+      if(pluginModule[key].enable){ // 判断是否开启
+        const plugin = require(pluginModule[key].packagePath).default
+        plugin(this.app)
+      }
+    })
+  }
+  
   loadRouter() {
     this.loadController()
     this.loadService()
     this.loadConfig()
+    this.loadPlugin()
 
     const routes = bp.getRoute()
     // const mod = require(__dirname + '/router.js')

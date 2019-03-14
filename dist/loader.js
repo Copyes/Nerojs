@@ -51,10 +51,23 @@ class Loader {
             }
         });
     }
+    // 动态加载插件
+    loadPlugin() {
+        const pluginModule = require(__dirname + '/config/plugin.js');
+        Object.keys(pluginModule).forEach(key => {
+            // pluginModule[key]
+            if (pluginModule[key].enable) { // 判断是否开启
+                const plugin = require(pluginModule[key].packagePath).default;
+                console.log(plugin);
+                plugin(this.app);
+            }
+        });
+    }
     loadRouter() {
         this.loadController();
         this.loadService();
         this.loadConfig();
+        this.loadPlugin();
         const routes = blueprint_1.bp.getRoute();
         // const mod = require(__dirname + '/router.js')
         // const routers = mod(this.controller)
