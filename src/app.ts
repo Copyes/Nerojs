@@ -1,9 +1,4 @@
-import Koa from 'koa'
-import { Loader } from './loader'
-const app = new Koa
+import { Nero } from './core'
 
-const loader = new Loader(app)
-app.use(loader.loadRouter())
-app.listen(3000, '127.0.0.1', () => {
-  console.log('done')
-})
+const app = new Nero
+app.run(() => {})

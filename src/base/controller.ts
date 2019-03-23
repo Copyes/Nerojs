@@ -1,10 +1,10 @@
 import { BaseContext } from 'koa'
-import Koa from 'koa'
+import { Nero } from '../core'
 export class Controller {
   ctx: BaseContext
-  app: Koa
-  constructor(ctx: BaseContext, app: Koa){
+  app: Nero
+  constructor(ctx: BaseContext){
     this.ctx = ctx
-    this.app = app
+    this.app = ctx.app
   }
 }

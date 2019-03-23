@@ -4,9 +4,14 @@ import Router from 'koa-router'
 import { BaseContext } from 'koa'
 import { Nero } from './core'
 import { bp } from './blueprint'
+import { loadavg } from 'os';
 
 const HASLOADED = Symbol('hasloaded')
 
+interface FileModule {
+  module: any,
+  filename: string
+}
 interface StringSub {
   source: string,
   isFound: boolean
@@ -49,32 +54,46 @@ export class Loader {
     return subStrObj.source.substr(0,subStrObj.source.length - 4) + '/'
   }
 
-  loadController(){
-    const dirs = fs.readdirSync(__dirname + '/controller');
-    dirs.forEach((filename) => {
-      require(__dirname + '/controller/' + filename).default
+  private fileLoader(url: string) {
+    const mergePath = this.loadDir() + url
+    return fs.readdirSync(mergePath).map((name) => {
+      return {
+        module: require(mergePath + '/' + name).default,
+        filename: name
+      }
     })
   }
-  loadService() {
-    const services = fs.readdirSync(__dirname + '/service');
-    Object.defineProperty(this.app.context, 'service', {
+
+  loadController(){
+    // const dirs = fs.readdirSync(__dirname + '/controller');
+    // dirs.forEach((filename) => {
+    //   require(__dirname + '/controller/' + filename).default
+    // })
+    this.fileLoader('app/controller')
+  }
+  // load the context
+  loadContext(targets: Array<FileModule>, app: Nero, property: string) {
+    Object.defineProperty(app.context, property, {
       get() {
-        if(!(<any>this)['cache']){
-          (<any>this)['cache'] = {}
+        if(!(<any>this)[HASLOADED]){
+          (<any>this)[HASLOADED] = {}
         }
-        const loaded = (<any>this)['cache'];
-        if(!loaded['service']){
-          loaded['service'] = {}
-          services.forEach((d) => {
-            const name = d.split('.')[0];
-            const mod = require(__dirname + '/service/' + name).default;
-            loaded['service'][name] = new mod(this, this.app)
+        const loaded = (<any>this)[HASLOADED]
+        if(!loaded[property]){
+          loaded[property] = {}
+          targets.forEach(mod => {
+            const key = mod.filename.split('.')[0]
+            loaded[property][key] = new mod.module(this, app)
           })
           return loaded.service
         }
         return loaded.service
       }
     })
+  }
+  loadService() {
+    const service = this.fileLoader('app/service')
+    this.loadContext(service, this.app, 'service')
   }
   loadConfig() {
     const configDef = __dirname + '/config/config.default.js';
@@ -91,24 +110,20 @@ export class Loader {
 
   // 动态加载插件
   loadPlugin() {
-    const pluginModule = require(__dirname + '/config/plugin.js')
-    Object.keys(pluginModule).forEach(key => {
-      if(pluginModule[key].enable){ // 判断是否开启
-        const plugin = require(pluginModule[key].packagePath).default
-        plugin(this.app)
+    const pluginDir = this.loadDir() + 'app/plugins/index.js'
+    const plugins = require(pluginDir).default
+
+    for(const index in plugins) {
+      const plugin: Plugin = plugins[index]
+      if(plugin.enable) {
+        const pkg = require(plugin.package)
+        pkg(this.app)
       }
-    })
+    }
   }
   
   loadRouter() {
-    this.loadController()
-    this.loadService()
-    this.loadConfig()
-    this.loadPlugin()
-
     const routes = bp.getRoute()
-    // const mod = require(__dirname + '/router.js')
-    // const routers = mod(this.controller)
     Object.keys(routes).forEach(url => {
       routes[url].forEach(item => {
         (<any>this.router)[item.httpMethod](url, async (ctx: BaseContext) => {
@@ -116,14 +131,14 @@ export class Loader {
           await instance[item.handler]()
         })
       })
-      // const [method, path] = key.split(' ');
-      // (<any>this.router)[method](path, async (ctx: BaseContext) => {
-      //   const _class = routers[key].type;
-      //   const handler = routers[key].methodName;
-      //   const instance = new _class(ctx, this.app);
-      //   instance[handler]();
-      // })
     })
     return this.router.routes();
+  }
+  load() {
+    this.loadController()
+    this.loadService()
+    this.loadConfig()
+    this.loadPlugin()
+    this.loadRouter()
   }
 }
