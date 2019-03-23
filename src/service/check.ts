@@ -1,4 +1,4 @@
-import Service from './base'
+import { Service } from './base'
 
 export default class check extends Service {
   index(){

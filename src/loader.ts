@@ -1,18 +1,54 @@
-import fs from 'fs';
-import Koa from 'koa';
-import Router from 'koa-router';
-import { BaseContext } from 'koa';
-import { bp } from './blueprint';
+import fs from 'fs'
+import Koa from 'koa'
+import Router from 'koa-router'
+import { BaseContext } from 'koa'
+import { Nero } from './core'
+import { bp } from './blueprint'
 
+const HASLOADED = Symbol('hasloaded')
+
+interface StringSub {
+  source: string,
+  isFound: boolean
+}
+
+interface Plugin {
+  enable: boolean,
+  package: string
+}
+// find the sub string
+function removeString(source: string, str: string): StringSub {
+  const index = source.indexOf(str)
+  if(index > 0){
+    return {
+      source: source.substr(0, index),
+      isFound: true
+    }
+  }
+  return {
+    source,
+    isFound: false
+  }
+}
 
 export class Loader {
-  router: Router = new Router
+  private router: Router = new Router
+  private app: Nero
+  
   controller: any = {}
-  app: Koa
 
-  constructor(app: Koa){
+  constructor(app: Nero) {
     this.app = app
   }
+
+  private loadDir() {
+    const subStrObj = removeString(__dirname, 'node_modules')
+    if(subStrObj.isFound){
+      return subStrObj.source
+    }
+    return subStrObj.source.substr(0,subStrObj.source.length - 4) + '/'
+  }
+
   loadController(){
     const dirs = fs.readdirSync(__dirname + '/controller');
     dirs.forEach((filename) => {

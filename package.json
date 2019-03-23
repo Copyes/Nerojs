@@ -2,7 +2,8 @@
   "name": "nerojs",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "start": "tsc && NODE_ENV=development node ./dist/app.js",
     "dev": "./node_modules/nodemon/bin/nodemon.js",
@@ -12,17 +13,21 @@
     "type": "git",
     "url": "git+https://github.com/Copyes/Nerojs.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Fan Chao",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Copyes/Nerojs/issues"
   },
   "homepage": "https://github.com/Copyes/Nerojs#readme",
   "dependencies": {
     "@types/koa": "^2.0.48",
+    "@types/koa-bodyparser": "^4.2.2",
     "@types/koa-router": "^7.0.39",
+    "@types/request": "^2.48.1",
     "koa": "^2.7.0",
-    "koa-router": "^7.4.0"
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"

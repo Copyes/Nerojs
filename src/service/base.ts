@@ -1,6 +1,6 @@
 import { BaseContext } from 'koa'
 import Koa from 'koa'
-export default class Service {
+export class Service {
   ctx: BaseContext
   app: Koa
   constructor(ctx: BaseContext, app: Koa){
