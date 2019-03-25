@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class Service {
-    constructor(ctx, app) {
+class Controller {
+    constructor(ctx) {
         this.ctx = ctx;
-        this.app = app;
+        this.app = ctx.app;
     }
 }
-exports.default = Service;
+exports.Controller = Controller;

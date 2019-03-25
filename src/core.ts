@@ -1,7 +1,7 @@
 import Koa from 'koa'
 import { Loader } from './loader'
-import { Controller } from './controller/base'
-import { Service } from './service/base'
+import { Controller } from './base/controller.js'
+import { Service } from './base/service.js'
 import { blueprint, bp } from './blueprint'
 
 import * as req from 'request'
@@ -94,5 +94,6 @@ export class Nero extends Koa {
         }
       })
     })
+    return await c
   }
 }

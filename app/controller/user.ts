@@ -1,5 +1,5 @@
-import { Controller } from './base'
-import { bp } from '../blueprint';
+import { Controller } from '../../src/base/controller'
+import { bp } from '../../src/blueprint'
 export default class User extends Controller {
   async user() {
 

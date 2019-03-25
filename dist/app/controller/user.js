@@ -6,9 +6,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = require("./base");
-const blueprint_1 = require("../blueprint");
-class User extends base_1.Controller {
+const controller_1 = require("../../src/base/controller");
+const blueprint_1 = require("../../src/blueprint");
+class User extends controller_1.Controller {
     async user() {
         this.ctx.body = this.ctx.service.check.index(); //注意看这里
     }

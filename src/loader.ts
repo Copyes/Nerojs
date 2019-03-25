@@ -1,10 +1,8 @@
 import fs from 'fs'
-import Koa from 'koa'
 import Router from 'koa-router'
 import { BaseContext } from 'koa'
 import { Nero } from './core'
 import { bp } from './blueprint'
-import { loadavg } from 'os';
 
 const HASLOADED = Symbol('hasloaded')
 
