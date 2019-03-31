@@ -35,7 +35,7 @@ function removeString(source: string, str: string): StringSub {
 }
 
 export class Loader {
-  private router: Router = new Router
+  private router: any = new Router
   private app: Nero
   
   controller: any = {}
@@ -52,7 +52,7 @@ export class Loader {
     return subStrObj.source.substr(0,subStrObj.source.length - 4) + '/'
   }
 
-  private fileLoader(url: string) {
+  private fileLoader(url: string): Array<FileModule> {
     const mergePath = this.loadDir() + url
     return fs.readdirSync(mergePath).map((name) => {
       return {
@@ -63,10 +63,6 @@ export class Loader {
   }
 
   loadController(){
-    // const dirs = fs.readdirSync(__dirname + '/controller');
-    // dirs.forEach((filename) => {
-    //   require(__dirname + '/controller/' + filename).default
-    // })
     this.fileLoader('app/controller')
   }
   // load the context
@@ -94,8 +90,8 @@ export class Loader {
     this.loadContext(service, this.app, 'service')
   }
   loadConfig() {
-    const configDef = __dirname + '/config/config.default.js';
-    const configEnv = __dirname + (process.env.NODE_ENV === 'production' ? '/config/config.prod.js' : '/config/config.dev.js');
+    const configDef = this.loadDir() + 'app/config/config.default.js';
+    const configEnv = this.loadDir() + (process.env.NODE_ENV === 'production' ? 'app/config/config.prod.js' : 'app/config/config.dev.js');
     const conf = require(configEnv)
     const confDef = require(configDef)
     const merge = Object.assign({}, conf, confDef)
@@ -124,19 +120,19 @@ export class Loader {
     const routes = bp.getRoute()
     Object.keys(routes).forEach(url => {
       routes[url].forEach(item => {
-        (<any>this.router)[item.httpMethod](url, async (ctx: BaseContext) => {
+        this.router[item.httpMethod](url, async (ctx: BaseContext) => {
           const instance = new item.constructor(ctx, this.app)
           await instance[item.handler]()
         })
       })
     })
-    return this.router.routes();
+    this.app.use(this.router.routes())
   }
   load() {
-    this.loadController()
-    this.loadService()
     this.loadConfig()
     this.loadPlugin()
+    this.loadController()
+    this.loadService()
     this.loadRouter()
   }
 }

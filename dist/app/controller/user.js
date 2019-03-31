@@ -8,18 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const controller_1 = require("../../src/base/controller");
 const blueprint_1 = require("../../src/blueprint");
-class User extends controller_1.Controller {
-    async user() {
-        this.ctx.body = this.ctx.service.check.index(); //注意看这里
+class user extends controller_1.Controller {
+    async index(body) {
+        this.ctx.body = 'body';
     }
-    getConfig() {
-        return this.app['config'];
-    }
-    async userInfo() {
-        this.ctx.body = this.getConfig().middleware[0];
+    async pxt(body) {
+        this.ctx.body = JSON.stringify(body);
     }
 }
 __decorate([
-    blueprint_1.bp.get('/test')
-], User.prototype, "userInfo", null);
-exports.default = User;
+    blueprint_1.bp.get('/uc')
+], user.prototype, "index", null);
+__decorate([
+    blueprint_1.bp.post('/pxt')
+], user.prototype, "pxt", null);
+exports.default = user;

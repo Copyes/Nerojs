@@ -1,4 +1,6 @@
 import { Nero } from './core'
 
 const app = new Nero
-app.run(() => {})
+app.run(() => {
+  console.log('server has been started')
+})

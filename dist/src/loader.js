@@ -44,10 +44,6 @@ class Loader {
         });
     }
     loadController() {
-        // const dirs = fs.readdirSync(__dirname + '/controller');
-        // dirs.forEach((filename) => {
-        //   require(__dirname + '/controller/' + filename).default
-        // })
         this.fileLoader('app/controller');
     }
     // load the context
@@ -75,8 +71,8 @@ class Loader {
         this.loadContext(service, this.app, 'service');
     }
     loadConfig() {
-        const configDef = __dirname + '/config/config.default.js';
-        const configEnv = __dirname + (process.env.NODE_ENV === 'production' ? '/config/config.prod.js' : '/config/config.dev.js');
+        const configDef = this.loadDir() + 'app/config/config.default.js';
+        const configEnv = this.loadDir() + (process.env.NODE_ENV === 'production' ? 'app/config/config.prod.js' : 'app/config/config.dev.js');
         const conf = require(configEnv);
         const confDef = require(configDef);
         const merge = Object.assign({}, conf, confDef);
@@ -108,13 +104,13 @@ class Loader {
                 });
             });
         });
-        return this.router.routes();
+        this.app.use(this.router.routes());
     }
     load() {
-        this.loadController();
-        this.loadService();
         this.loadConfig();
         this.loadPlugin();
+        this.loadController();
+        this.loadService();
         this.loadRouter();
     }
 }

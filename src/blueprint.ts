@@ -60,15 +60,6 @@ class Blueprint {
       })
     }
   }
-  get(url: string){
-    return (target: any, propertyKey: string) => {
-      (<any>this).setRouter(url, {
-        httpMethod: 'get',
-        constructor: target.constructor,
-        handler: propertyKey
-      })
-    }
-  }
 
   getRoute(){
     return this.router
@@ -81,7 +72,7 @@ methods.forEach(httpMethod => {
       return (url: string) => {
         return (target: any, propertyKey: string) => {
           (<any>this).setRouter(url, {
-            httpMethod: 'get',
+            httpMethod: httpMethod,
             constructor: target.constructor,
             handler: propertyKey
           })

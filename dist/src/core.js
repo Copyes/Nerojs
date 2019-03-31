@@ -27,7 +27,7 @@ class Nero extends koa_1.default {
     // load the default middleware
     loadDefaultMiddleware() {
         const bodyparser = require('koa-bodyparser');
-        this.use(bodyparser);
+        this.use(bodyparser());
     }
     // the error page
     error() {

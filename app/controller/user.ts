@@ -1,17 +1,17 @@
 import { Controller } from '../../src/base/controller'
 import { bp } from '../../src/blueprint'
-export default class User extends Controller {
-  async user() {
 
-    this.ctx.body = this.ctx.service.check.index();//注意看这里
+interface User {
+  content: string
+}
+export default class user extends Controller {
+  @bp.get('/uc')
+  async index(body: User) {
+    this.ctx.body = 'body'
   }
 
-  getConfig() {
-    return (<any>this.app)['config']
-  }
-
-  @bp.get('/test')
-  async userInfo() {
-    this.ctx.body = this.getConfig().middleware[0]
+  @bp.post('/pxt')
+  async pxt(body: User) {
+    this.ctx.body = JSON.stringify(body)
   }
 }
