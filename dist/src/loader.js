@@ -94,6 +94,24 @@ class Loader {
             }
         }
     }
+    // load the middlewares
+    loadMiddleware() {
+        try {
+            const middlewares = this.fileLoader('app/middleware');
+            const registedMid = this.app.config['middleware'];
+            if (!registedMid)
+                return;
+            registedMid.forEach((name) => {
+                for (const index in middlewares) {
+                    const mod = middlewares[index];
+                    const fname = mod.filename.split('.')[0];
+                    name === fname && this.app.use(mod.module());
+                }
+            });
+        }
+        catch (e) {
+        }
+    }
     loadRouter() {
         const routes = blueprint_1.bp.getRoute();
         Object.keys(routes).forEach(url => {
@@ -109,6 +127,7 @@ class Loader {
     load() {
         this.loadConfig();
         this.loadPlugin();
+        this.loadMiddleware();
         this.loadController();
         this.loadService();
         this.loadRouter();
